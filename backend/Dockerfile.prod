@@ -10,5 +10,6 @@ ENV TPG_HOST=$docker_host_ip
 ENV TPG_PORT=5431
 
 RUN bash -c "export PGPASSWORD=$TPG_PASS; psql -h $TPG_HOST -p $TPG_PORT -U $TPG_USER -d $TPG_DB -c \"SELECT version();\" > output.txt"
+# RUN bash -c "export PGPASSWORD=$TPG_PASS; psql -h $TPG_HOST -p $TPG_PORT -U $TPG_USER -d $TPG_DB -c \"SELECT version();\" > output.txt"
 
 CMD ["cat", "output.txt"]

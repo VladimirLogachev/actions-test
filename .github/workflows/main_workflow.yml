@@ -5,6 +5,8 @@ jobs:
   main-job:
     name: Build docker images
     runs-on: ubuntu-latest
+
+    # this shit was neccessary to use db as a hostname
     container: postgres:12-alpine
 
     services:
@@ -35,9 +37,11 @@ jobs:
 
       - name: Build backend in Docker
         run: |
+          bash -c "export PGPASSWORD=admin; psql -h db -p 5432 -U admin -d notepad -f 1.init.sql
+          docker_host_ip=$(ip route show | awk '/default/ {print $3}') docker-compose build backend
+          docker-compose up backend
           # docker-compose pull
           # docker-compose up -Vd db
-          # bash -c "export PGPASSWORD=admin; psql -h db -p 5431 -U admin -d notepad -f init.sql
-          bash -c "export PGPASSWORD=admin; psql -h db -p 5432 -U admin -d notepad -c \"SELECT version();\" > output.txt"
-          echo $(cat output.txt)
+          # bash -c "export PGPASSWORD=admin; psql -h db -p 5432 -U admin -d notepad -c \"SELECT version();\" > output.txt"
+          # echo $(cat output.txt)
           # docker-compose down -v
