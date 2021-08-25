@@ -38,6 +38,6 @@ jobs:
           # docker-compose pull
           # docker-compose up -Vd db
           # bash -c "export PGPASSWORD=admin; psql -h db -p 5431 -U admin -d notepad -f init.sql
-          bash -c "export PGPASSWORD=admin; psql -h db -p 5431 -U admin -d notepad -c \"SELECT version();\" > output.txt"
+          bash -c "export PGPASSWORD=admin; psql -h db -p 5432 -U admin -d notepad -c \"SELECT version();\" > output.txt"
           echo $(cat output.txt)
           # docker-compose down -v
