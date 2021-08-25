@@ -8,7 +8,7 @@ jobs:
 
     # this shit was neccessary to use db as a hostname
     # container: postgres:12-alpine
-    container: docker
+    container: docker/compose
 
     services:
       db:
