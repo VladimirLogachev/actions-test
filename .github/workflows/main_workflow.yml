@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # this shit was neccessary to use db as a hostname
-    container: postgres:12-alpine
+    # container: postgres:12-alpine
 
     services:
       db:
