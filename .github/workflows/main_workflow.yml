@@ -5,6 +5,22 @@ jobs:
   main-job:
     name: Build docker images
     runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:11-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: notepad
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5431:5432
+
     steps:
       - uses: actions/checkout@v2
 
@@ -18,8 +34,9 @@ jobs:
 
       - name: Build backend in Docker
         run: |
-          docker-compose pull
-          docker-compose up -Vd db
-          bash -c "export PGPASSWORD=admin; psql -h localhost -p 5431 -U admin -d notepad -c \"SELECT version();\" > output.txt"
+          # docker-compose pull
+          # docker-compose up -Vd db
+          # bash -c "export PGPASSWORD=admin; psql -h db -p 5431 -U admin -d notepad -f init.sql
+          bash -c "export PGPASSWORD=admin; psql -h db -p 5431 -U admin -d notepad -c \"SELECT version();\" > output.txt"
           echo $(cat output.txt)
-          docker-compose down -v
+          # docker-compose down -v
