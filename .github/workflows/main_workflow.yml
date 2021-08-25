@@ -28,6 +28,8 @@ jobs:
 
       - name: Build backend in Docker
         run: |
+          apk update
+          apk add postgresql-client
           export PGPASSWORD=admin; psql -h db -p 5432 -U admin -d notepad -f backend/1.init.sql
 
           docker_host_ip=$(ip route show | awk '/default/ {print $3}') docker-compose build backend
