@@ -21,7 +21,7 @@ jobs:
       - name: Use the file - read, append, read again
         run: |
           cat cache/sample.txt
-          echo "---"
-          echo "changes..." >> cache/sample.txt
-          echo "--- ---"
+          echo "\n---\n"
+          echo "\nchanges...\n" >> cache/sample.txt
+          echo "\n--- ---\n"
           cat cache/sample.txt
