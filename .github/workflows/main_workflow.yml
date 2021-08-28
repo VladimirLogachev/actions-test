@@ -3,33 +3,25 @@ on: push
 
 jobs:
   main-job:
-    name: Build docker images
+    name: Use cache
     runs-on: ubuntu-latest
 
-    container: docker/compose
-
-    services:
-      db:
-        image: postgres:11-alpine
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: notepad
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5431:5432
+    # container: docker/compose
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build backend in Docker
-        run: |
-          apk update
-          apk add postgresql-client
-          PGPASSWORD=admin psql -h db -p 5432 -U admin -d notepad -f backend/1.init.sql
 
-          docker_host_ip=$(ip route show | awk '/default/ {print $3}') docker-compose build backend
-          docker-compose up backend
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: cache
+          key: cache-key
+          restore-keys: cache-key
+
+      - name: Use the file - read, append, read again
+        run: |
+          cat cache/sample.txt
+          echo "---"
+          echo "changes..." >> cache/sample.txt
+          echo "--- ---"
+          cat cache/sample.txt
