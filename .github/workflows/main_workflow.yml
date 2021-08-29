@@ -1,6 +1,9 @@
 name: main_workflow
 on: push
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   main-job:
     name: Build docker images
@@ -10,6 +13,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and tag registry-test image
         run: |
           docker-compose build registry-test
