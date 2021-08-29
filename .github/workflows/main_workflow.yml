@@ -32,7 +32,7 @@ jobs:
           export BUILDX_VERSION=$(curl -s 'https://api.github.com/repos/docker/buildx/releases' | jq -r '.[0].tag_name')
           curl -L --output /docker-buildx "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64"
           chmod a+x /docker-buildx
-          mkdir -R /usr/lib/docker/cli-plugins
+          mkdir -p /usr/lib/docker/cli-plugins
           cp /docker-buildx /usr/lib/docker/cli-plugins/docker-buildx
 
       - name: Extract metadata (tags, labels) for Docker
