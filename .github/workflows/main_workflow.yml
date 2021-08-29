@@ -40,13 +40,11 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test
+          # https://github.com/docker/metadata-action#tags-input
           tags: |
-            type=schedule
+            type=raw,value=latest-dev
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha
 
       - name: Build and push Docker image
