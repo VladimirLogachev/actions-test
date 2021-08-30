@@ -40,12 +40,17 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test
-          # https://github.com/docker/metadata-action#tags-input
+          # What it does:
+          # - always tag with sha
+          # - always tag with branch name
+          # - if a PR is open for this branch, tags with pr number
+          # - if a release tag is 'v1.0.0', then tag 'latest' and '1.0.0'
+          # More info: https://github.com/docker/metadata-action#tags-input
           tags: |
+            type=sha
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
-            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
