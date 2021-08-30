@@ -40,6 +40,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test
+          
           # What it does:
           # - always tag with sha
           # - always tag with branch name
