@@ -8,9 +8,8 @@ jobs:
   main-job:
     name: Build docker images
     runs-on: ubuntu-latest
-    # permissions:
-      # Required for pushing image to container registry
-      # packages: write
+    permissions:
+      packages: write
 
     container: docker/compose
 
@@ -34,7 +33,7 @@ jobs:
           cp /docker-buildx /usr/lib/docker/cli-plugins/docker-buildx
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta1
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test
@@ -42,13 +41,11 @@ jobs:
           # What it does:
           # - always tag with sha
           # - always tag with branch name
-          # - if a PR is open for this branch, tags with pr number
           # - if a release tag is 'v1.0.0', then tag 'latest' and '1.0.0'
           # More info: https://github.com/docker/metadata-action#tags-input
           tags: |
             type=sha
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
 
       - name: Build and push Docker image
@@ -56,5 +53,29 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta1.outputs.tags }}
+          labels: ${{ steps.meta1.outputs.labels }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta2
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test2
+          
+          # What it does:
+          # - always tag with sha
+          # - always tag with branch name
+          # - if a release tag is 'v1.0.0', then tag 'latest' and '1.0.0'
+          # More info: https://github.com/docker/metadata-action#tags-input
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta2.outputs.tags }}
+          labels: ${{ steps.meta2.outputs.labels }}
