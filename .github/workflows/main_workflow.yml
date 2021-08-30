@@ -1,35 +1,58 @@
 name: main_workflow
 on: push
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   main-job:
     name: Build docker images
     runs-on: ubuntu-latest
+    permissions:
+      # TODO: ?
+      contents: read
+      # TODO: ?
+      packages: write
 
     container: docker/compose
 
-    services:
-      db:
-        image: postgres:11-alpine
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: notepad
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5431:5432
-
     steps:
       - uses: actions/checkout@v2
-      - name: Build backend in Docker
-        run: |
-          apk update
-          apk add postgresql-client
-          PGPASSWORD=admin psql -h db -p 5432 -U admin -d notepad -f backend/1.init.sql
 
-          docker_host_ip=$(ip route show | awk '/default/ {print $3}') docker-compose build backend
-          docker-compose up backend
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Docker buildx
+        run: |
+          apk add curl jq
+          export BUILDX_VERSION=$(curl -s 'https://api.github.com/repos/docker/buildx/releases' | jq -r '.[0].tag_name')
+          curl -L --output /docker-buildx "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64"
+          chmod a+x /docker-buildx
+          mkdir -p /usr/lib/docker/cli-plugins
+          cp /docker-buildx /usr/lib/docker/cli-plugins/docker-buildx
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/vladimirlogachev/registry-test
+          # https://github.com/docker/metadata-action#tags-input
+          tags: |
+            type=raw,value=latest-dev
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
