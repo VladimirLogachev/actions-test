@@ -9,9 +9,9 @@ jobs:
     name: Build docker images
     runs-on: ubuntu-latest
     permissions:
-      # TODO: ?
-      contents: read
-      # TODO: ?
+      # # Required for?
+      # contents: read
+      # Required for pushing image to container registry
       packages: write
 
     container: docker/compose
